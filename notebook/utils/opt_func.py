@@ -272,6 +272,8 @@ def predict(X, y, parameters):
         
     return p
 
+
+
 def print_mislabeled_images(classes, X, y, p):
     """
     Plots images where predictions and truth were different.
