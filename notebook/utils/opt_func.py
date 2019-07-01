@@ -267,10 +267,10 @@ def predict(X, y, parameters):
             p[0,i] = 1
         else:
             p[0,i] = 0
-    
-    print("Accuracy: "  + str(np.sum((p == y)/m)))
+    acc = np.sum((p == y)/m)
+    print("Accuracy: "  + str(acc))
         
-    return p
+    return p, acc
 
 
 

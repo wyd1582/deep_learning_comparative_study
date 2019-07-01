@@ -1,5 +1,5 @@
 import numpy as np 
-from util_functions.opt_func import *
+from utils.opt_func import *
 import matplotlib.pyplot as plt
 
 def two_layer_model(X, Y, layers_dims, learning_rate = 0.075, num_iterations = 3000, print_cost=False):
