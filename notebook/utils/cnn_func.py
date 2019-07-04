@@ -25,7 +25,7 @@ def conv_model(X_train, Y_train, X_test, Y_test, config, **para_dict):
     num_epochs = para_dict.get('num_epochs', 50)
     minibatch_size = para_dict.get('minibatch_size', 64)
     print_cost = para_dict.get('print_cost', True)
-    
+    batch_norm = para_dict.get('batch_norm', False)
     
     ops.reset_default_graph()
     tf.set_random_seed(1)
@@ -37,7 +37,7 @@ def conv_model(X_train, Y_train, X_test, Y_test, config, **para_dict):
     
     X, Y = tf_placeholder(n_H0, n_W0, n_C0, n_y)
     parameters = init_parameters()
-    Z3 = conv_propagation(X, parameters)
+    Z3 = conv_propagation(X, parameters, batch_norm = batch_norm)
     cost = conv_cost(Z3, Y)
     
     optimizer = tf.train.AdamOptimizer(learning_rate = lr).minimize(cost)
@@ -49,7 +49,7 @@ def conv_model(X_train, Y_train, X_test, Y_test, config, **para_dict):
         for epoch in range(num_epochs):
             minibatch_cost = 0.
             num_minibatches = int(m/minibatch_size)
-            seed =seed + 1#??
+            seed = seed + 1#??
             minibatches = random_mini_batches(X_train, Y_train, minibatch_size, seed)
             for minibatch in minibatches:
                 (minibatch_X, minibatch_Y) = minibatch
@@ -118,18 +118,26 @@ def init_parameters():
     return parameter_dict
 
 
-def conv_propagation(X, parameters):
+def conv_propagation(X, parameters, batch_norm = True):
     '''
     function for forward propagation: CONV2D => RELU => MAXPOOL => CONV2D => RELU => MAXPOOL => FLATTEN => FULLYCONNECTED
+    
+    TODO
+    ----
+    implement batch normalization
 
     '''
     W1 = parameters['W1']
     W2 = parameters['W2']
     
     Z1 = tf.nn.conv2d(X, W1, strides = [1, 1, 1, 1], padding = 'SAME')
+    if batch_norm == True:
+        Z1 = tf.layers.batch_normalization(Z1) #added one layer batch normalization
     A1 = tf.nn.relu(Z1)
     P1 = tf.nn.max_pool(A1, ksize = [1, 8, 8, 1], strides = [1, 8, 8, 1], padding= 'SAME')
     Z2 = tf.nn.conv2d(P1, W2, strides = [1, 1, 1, 1], padding = 'SAME')
+    if batch_norm == True:
+        Z2 = tf.layers.batch_normalization(Z2)
     A2 = tf.nn.relu(Z2)
     P2 = tf.nn.max_pool(A2, ksize = [1, 4, 4, 1], strides = [1, 4, 4, 1], padding = 'SAME')
     P2 = tf.contrib.layers.flatten(P2)
